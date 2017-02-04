@@ -34,7 +34,7 @@ app.get('/', function (req, res) {
   res.send('Hello World!');
 })
 
-app.get('/board/list', listBoard);
+app.get('/board/list/:userId', listBoard);
 app.get('/board/:id', showBoard);
 app.patch('/board/:id', updateBoard);
 app.post('/board/:name', createBoard);
@@ -59,6 +59,7 @@ db.sequelize.sync().then(function() {
 function createBoard(req, res) {
   console.log("request in");
   var name = req.params.name;
+  var userId = req.body.userId;
   var defaultSections = getDefaultSections();
 
   db.Board.create(
@@ -84,7 +85,7 @@ function createBoard(req, res) {
         }
       ]
     }).then(function(board){
-      db.User.findOne().then(function(user){
+      db.User.findOne({where: { id: userId }}).then(function(user){
         board.setUser(user).then(function(){
           res.json(board.get({ plain: true }));
         })
@@ -113,7 +114,7 @@ function showBoard(req, res) {
 }
 
 function listBoard(req, res) {
-  db.User.findOne().then(function(user){
+  db.User.findOne({ where: { id: req.params.userId } }).then(function(user){
     // console.log("user id is ", user.id);
     db.Board.findAll({
       where: { UserId: user.id },
