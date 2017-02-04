@@ -60,6 +60,11 @@ function createBoard(req, res) {
   console.log("request in");
   var name = req.params.name;
   var userId = req.body.userId;
+
+  if(!userId){
+    res.json({success: false, message: "Invalid request"});
+    return;
+  }
   var defaultSections = getDefaultSections();
 
   db.Board.create(
@@ -162,11 +167,25 @@ function createItem(req, res) {
 }
 
 function editItem(req, res) {
-  // body...
+  var itemParams = JSON.parse(req.body.item);
+  db.Item.update(
+    itemParams,
+    { where: { id: req.params.id } }
+  ).then(function(board){
+    res.json("Successfully updated item");
+  }).catch(function(error){
+    res.json(error);
+  });
 }
 
 function removeItem(req, res) {
-  // body...
+  db.Item.destroy(
+    { where: { id: req.params.id } }
+  ).then(function(board){
+    res.json("Successfully removed item");
+  }).catch(function(error){
+    res.json(error);
+  });
 }
 
 function getDefaultSections() {
